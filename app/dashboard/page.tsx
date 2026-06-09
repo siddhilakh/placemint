@@ -1,3 +1,4 @@
+ import GapReport from "@/components/analysis/GapReport"
  import AtsScoreCard from "@/components/analysis/AtsScoreCard"
 import RoleCard from "@/components/analysis/RoleCard"
 import { ResumeAnalysis } from "@/types"
@@ -58,6 +59,8 @@ export default function DashboardPage() {
             />
           ))}
         </div>
+        <h2 className="text-lg font-semibold text-gray-900 mb-4">Resume Gaps</h2>
+<GapReport gaps={fakeData.gaps} />
       </div>
     </main>
   )
