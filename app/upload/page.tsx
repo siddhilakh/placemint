@@ -1,10 +1,12 @@
 "use client"
 import { useState } from "react"
+import { useRouter } from "next/navigation"
 
 export default function UploadPage() {
   const [file, setFile] = useState<File | null>(null)
   const [error, setError] = useState<string>("")
   const [loading, setLoading] = useState<boolean>(false)
+  const router = useRouter()
 
   function handleFile(selected: File) {
     if (selected.type !== "application/pdf") {
@@ -19,10 +21,11 @@ export default function UploadPage() {
     setFile(selected)
   }
 
-  function handleSubmit() {
+  async function handleSubmit() {
     if (!file) return
     setLoading(true)
-    console.log("File selected:", file.name)
+    await new Promise((resolve) => setTimeout(resolve, 2000))
+    router.push("/profile")
   }
 
   return (
@@ -51,9 +54,7 @@ export default function UploadPage() {
           )}
         </label>
 
-        {error && (
-          <p className="text-red-500 text-sm mt-3">{error}</p>
-        )}
+        {error && <p className="text-red-500 text-sm mt-3">{error}</p>}
 
         <button
           onClick={handleSubmit}

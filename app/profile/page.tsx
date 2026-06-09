@@ -1,5 +1,6 @@
 "use client"
 import { useState } from "react"
+import { useRouter } from "next/navigation"
 import { StudentProfile } from "@/types"
 
 export default function ProfilePage() {
@@ -9,6 +10,7 @@ export default function ProfilePage() {
   const [collegeTier, setCollegeTier]     = useState<string>("")
   const [graduationYear, setGraduationYear] = useState<string>("")
   const [errors, setErrors]               = useState<Record<string, string>>({})
+  const router = useRouter()
 
   function validate() {
     const newErrors: Record<string, string> = {}
@@ -37,6 +39,7 @@ export default function ProfilePage() {
       graduationYear: Number(graduationYear),
     }
     console.log("Profile submitted:", profile)
+    router.push("/dashboard")
   }
 
   return (

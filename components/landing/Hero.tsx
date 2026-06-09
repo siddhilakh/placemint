@@ -10,7 +10,7 @@ export default function Hero() {
       <p className="text-lg text-gray-500 max-w-xl mb-10">
         Upload your resume, tell us your profile — get an ATS score, role matches, and a specific gap report. No generic advice. No fluff.
       </p>
-      <a href="/profile" className="bg-green-600 text-white text-base font-medium px-8 py-4 rounded-xl hover:bg-green-700 transition-colors">
+      <a href="/upload" className="bg-green-600 text-white text-base font-medium px-8 py-4 rounded-xl hover:bg-green-700 transition-colors">
         Analyse My Resume →
       </a>
     </section>
