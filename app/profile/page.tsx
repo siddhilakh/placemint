@@ -4,12 +4,13 @@ import { useRouter } from "next/navigation"
 import { StudentProfile } from "@/types"
 
 export default function ProfilePage() {
-  const [name, setName]                   = useState<string>("")
-  const [branch, setBranch]               = useState<string>("")
-  const [cgpa, setCgpa]                   = useState<string>("")
-  const [collegeTier, setCollegeTier]     = useState<string>("")
-  const [graduationYear, setGraduationYear] = useState<string>("")
-  const [errors, setErrors]               = useState<Record<string, string>>({})
+  const [name, setName]                       = useState<string>("")
+  const [branch, setBranch]                   = useState<string>("")
+  const [cgpa, setCgpa]                       = useState<string>("")
+  const [collegeTier, setCollegeTier]         = useState<string>("")
+  const [graduationYear, setGraduationYear]   = useState<string>("")
+  const [errors, setErrors]                   = useState<Record<string, string>>({})
+  const [loading, setLoading]                 = useState<boolean>(false)
   const router = useRouter()
 
   function validate() {
@@ -24,22 +25,41 @@ export default function ProfilePage() {
     return newErrors
   }
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     const newErrors = validate()
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors)
       return
     }
-    const profile: StudentProfile = {
-      name,
-      branch:         branch as StudentProfile["branch"],
-      cgpa:           Number(cgpa),
-      collegeTier:    collegeTier as StudentProfile["collegeTier"],
-      graduationYear: Number(graduationYear),
+
+    setLoading(true)
+
+    try {
+      const response = await fetch('/api/profile', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name,
+          branch,
+          cgpa,
+          collegeTier,
+          graduationYear,
+        })
+      })
+
+      if (!response.ok) {
+        setErrors({ submit: 'Failed to save profile. Please try again.' })
+        setLoading(false)
+        return
+      }
+
+      router.push('/dashboard')
+    } catch (error) {
+      console.error(error)
+      setErrors({ submit: 'Something went wrong. Please try again.' })
+      setLoading(false)
     }
-    console.log("Profile submitted:", profile)
-    router.push("/dashboard")
   }
 
   return (
@@ -129,11 +149,14 @@ export default function ProfilePage() {
             {errors.graduationYear && <p className="text-red-500 text-xs">{errors.graduationYear}</p>}
           </div>
 
+          {errors.submit && <p className="text-red-500 text-sm">{errors.submit}</p>}
+
           <button
             type="submit"
-            className="bg-green-600 text-white font-medium py-3 rounded-xl hover:bg-green-700 transition-colors"
+            disabled={loading}
+            className="bg-green-600 text-white font-medium py-3 rounded-xl hover:bg-green-700 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
           >
-            Continue →
+            {loading ? "Saving..." : "Continue →"}
           </button>
 
         </form>

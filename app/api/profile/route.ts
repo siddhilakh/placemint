@@ -5,7 +5,6 @@ export async function POST(request: Request) {
   try {
     const body = await request.json()
 
-    // ensure placeholder user exists first
     await prisma.user.upsert({
       where:  { id: 'placeholder_01' },
       update: {},
@@ -16,8 +15,16 @@ export async function POST(request: Request) {
       }
     })
 
-    const profile = await prisma.studentProfile.create({
-      data: {
+    const profile = await prisma.studentProfile.upsert({
+      where: { userId: 'placeholder_01' },
+      update: {
+        name:           body.name,
+        branch:         body.branch,
+        cgpa:           parseFloat(body.cgpa),
+        collegeTier:    body.collegeTier,
+        graduationYear: parseInt(body.graduationYear),
+      },
+      create: {
         userId:         'placeholder_01',
         name:           body.name,
         branch:         body.branch,
