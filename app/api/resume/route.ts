@@ -1,15 +1,28 @@
 import { prisma } from '@/lib/prisma'
 import { NextResponse } from 'next/server'
+import { extractTextFromPdf } from '@/lib/parsePdf'
 
 export async function POST(request: Request) {
   try {
     const body = await request.json()
 
+    let extractedText = ''
+    try {
+      extractedText = await extractTextFromPdf(body.fileUrl)
+    } catch (err) {
+      console.error('Text extraction failed:', err)
+    }
+
+    if (!extractedText || extractedText.trim().length < 50) {
+      extractedText = 'TEXT_EXTRACTION_FAILED'
+    }
+
     const resume = await prisma.resume.create({
       data: {
-        userId:   'placeholder_01',
-        fileName: body.fileName,
-        fileUrl:  body.fileUrl ?? 'placeholder_url',
+        userId:        'placeholder_01',
+        fileName:      body.fileName,
+        fileUrl:       body.fileUrl,
+        extractedText: extractedText,
       }
     })
 
