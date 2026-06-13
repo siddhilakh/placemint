@@ -13,8 +13,10 @@ Every analysis is saved to your account so you can track your improvement over t
 - Next.js 16 + TypeScript
 - Tailwind CSS
 - PostgreSQL (Neon) + Prisma 5
-- NextAuth.js — email based login (Week 5)
-- Gemini API (Week 4)
+- Uploadthing — file storage
+- unpdf — PDF text extraction
+- Clerk — email based auth (Week 5)
+- Gemini API — AI analysis (Week 6)
 
 ## Pages
 
@@ -31,38 +33,49 @@ Every analysis is saved to your account so you can track your improvement over t
 |--------|-------|-------------|
 | POST | `/api/profile` | Save or update student profile |
 | GET | `/api/profile` | Fetch student profile with resumes |
-| POST | `/api/resume` | Save resume metadata |
+| POST | `/api/resume` | Save resume + extract PDF text |
 | GET | `/api/resume` | Fetch all resumes for a user |
 
 ## Database Schema
 
-Three tables — User, StudentProfile, Resume, ResumeAnalysis. StudentProfile → Resume is one-to-many (a student uploads many resumes over time). Resume → ResumeAnalysis is one-to-one (each resume gets exactly one analysis).
+Four tables — User, StudentProfile, Resume, ResumeAnalysis. StudentProfile → Resume is one-to-many. Resume → ResumeAnalysis is one-to-one. ResumeAnalysis has a `promptVersion` field for prompt versioning.
 
 ## Week 1 — Foundation
 - Next.js + TypeScript + Tailwind project setup
-- Full folder structure for all 8 weeks
-- Core TypeScript types — StudentProfile, ResumeAnalysis, RoleSuggestion, ResumeGap
-- Landing page — Navbar, Hero, Features, How it works, Footer
+- Full folder structure
+- Core TypeScript types
+- Landing page — 5 sections
 
 ## Week 2 — UI Shell
-- Resume upload page with file type and size validation
-- Dashboard with ATS score display, role suggestion cards, gap report
-- Profile form with controlled inputs and inline validation
-- Full user flow connected — landing → upload → profile → dashboard
-- Email based auth planned for Week 5 — history tied to user account
+- Resume upload page with file validation
+- Dashboard with ATS score, role cards, gap report
+- Profile form with controlled inputs and validation
+- Full user flow connected end to end
 
 ## Week 3 — Database
-- Neon PostgreSQL database with 4 tables
-- Prisma 5 ORM — schema, migrations, client singleton
-- Profile API route — POST saves to DB, GET fetches with related resumes
-- Resume API route — POST saves metadata, GET fetches all resumes
-- Profile form wired to real API — data persists in database on submit
+- Neon PostgreSQL with 4 tables
+- Prisma 5 ORM
+- Profile and Resume API routes
+- Profile form saves to database
+
+## Week 4 — File Upload + PDF Extraction
+- Uploadthing integration for real file storage
+- Custom upload UI using useUploadThing hook
+- PDF text extraction using unpdf
+- Extracted text saved to database alongside file URL
+- Prompt versioning added — lib/prompts.ts with v1 prompt
+
+## Known Limitations
+- Image-based PDFs (scanned documents) return limited text. Planned fix: Google Cloud Vision OCR for production.
+- Upload page shows guidance: "For best results, upload a PDF created from Word, Google Docs, or Canva."
 
 ## What went wrong and how I fixed it
-Prisma 7 was installed by default with create-next-app. It has a completely different configuration format — driver adapters, prisma.config.ts, no url field in schema.prisma. None of the standard Prisma documentation applies to it yet. Downgraded to Prisma 5 which is stable, widely documented, and works exactly as expected. Lesson: always check the version of a tool before following any tutorial or documentation.
+- **Prisma 7 → 5 downgrade**: Prisma 7 has breaking changes incompatible with standard Next.js setup. Downgraded to Prisma 5.
+- **Uploadthing UI components**: UploadDropzone and UploadButton conflicted with Tailwind v4 styles. Switched to useUploadThing hook for full UI control.
+- **Tesseract.js on Windows**: Worker script path issues in Next.js on Windows. Deferred OCR to production using Google Cloud Vision.
 
 ## Why PlaceMint over just asking an AI
-Generic AI tools can review a resume but they don't know your college tier, your placement season timeline, or the difference between TCS Ninja and TCS Digital. PlaceMint combines your resume with your full profile to give output specific to the Indian campus hiring reality. Saved history means you can track improvement over multiple uploads — something no general AI tool does out of the box.
+Generic AI tools can review a resume but they don't know your college tier, your placement season timeline, or the difference between TCS Ninja and TCS Digital. PlaceMint combines your resume with your full profile to give output specific to the Indian campus hiring reality. Saved history means you can track improvement over multiple uploads.
 
 ## Author
 
