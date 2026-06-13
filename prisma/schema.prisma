@@ -50,6 +50,7 @@ model ResumeAnalysis {
   roles       Json
   gaps        Json
   summary     String
+  promptVersion  String   @default("v1")
   createdAt   DateTime @default(now())
 
   resume      Resume   @relation(fields: [resumeId], references: [id])
