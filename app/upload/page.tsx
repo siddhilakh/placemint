@@ -27,7 +27,7 @@ export default function UploadPage() {
           return
         }
 
-        router.push('/profile')
+        router.push('/dashboard')
       } catch (err) {
         console.error(err)
         setError("Something went wrong. Please try again.")
