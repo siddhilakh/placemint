@@ -22,7 +22,7 @@ model StudentProfile {
   userId         String   @unique
   name           String
   branch         String
-  cgpa           Float
+  cgpa           Decimal
   collegeTier    String
   graduationYear Int
   createdAt      DateTime @default(now())

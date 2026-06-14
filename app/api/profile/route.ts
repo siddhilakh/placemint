@@ -1,31 +1,39 @@
 import { prisma } from '@/lib/prisma'
+import { auth, currentUser } from '@clerk/nextjs/server'
 import { NextResponse } from 'next/server'
 
 export async function POST(request: Request) {
   try {
-    const body = await request.json()
+    const { userId } = await auth()
+
+    if (!userId)
+      return NextResponse.json({ error: 'Unauthorised' }, { status: 401 })
+
+    const clerkUser = await currentUser()
 
     await prisma.user.upsert({
-      where:  { id: 'placeholder_01' },
+      where:  { id: userId },
       update: {},
       create: {
-        id:    'placeholder_01',
-        email: 'placeholder@placemint.dev',
-        name:  body.name,
+        id:    userId,
+        email: clerkUser?.emailAddresses[0]?.emailAddress ?? '',
+        name:  clerkUser?.firstName ?? '',
       }
     })
 
+    const body = await request.json()
+
     const profile = await prisma.studentProfile.upsert({
-      where: { userId: 'placeholder_01' },
+      where:  { userId },
       update: {
         name:           body.name,
         branch:         body.branch,
-        cgpa:           parseFloat(body.cgpa),
+        cgpa:           body.cgpa,
         collegeTier:    body.collegeTier,
         graduationYear: parseInt(body.graduationYear),
       },
       create: {
-        userId:         'placeholder_01',
+        userId,
         name:           body.name,
         branch:         body.branch,
         cgpa:           parseFloat(body.cgpa),
@@ -43,8 +51,13 @@ export async function POST(request: Request) {
 
 export async function GET() {
   try {
+    const { userId } = await auth()
+
+    if (!userId)
+      return NextResponse.json({ error: 'Unauthorised' }, { status: 401 })
+
     const profile = await prisma.studentProfile.findUnique({
-      where:   { userId: 'placeholder_01' },
+      where:   { userId },
       include: { resumes: true }
     })
 

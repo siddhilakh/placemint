@@ -1,9 +1,39 @@
 import { prisma } from '@/lib/prisma'
+import { auth, currentUser } from "@clerk/nextjs/server"
 import { NextResponse } from 'next/server'
 import { extractTextFromPdf } from '@/lib/parsePdf'
 
+
 export async function POST(request: Request) {
   try {
+    const { userId } = await auth()
+
+    if (!userId)
+      return NextResponse.json({ error: 'Unauthorised' }, { status: 401 })
+
+    const clerkUser = await currentUser()
+
+    
+    await prisma.user.upsert({
+      where:  { id: userId },
+      update: {},
+      create: {
+        id:    userId,
+        email: clerkUser?.emailAddresses[0]?.emailAddress ?? '',
+        name:  clerkUser?.firstName ?? '',
+      }
+    })
+    // Check if profile exists
+const profile = await prisma.studentProfile.findUnique({
+  where: { userId }
+})
+
+if (!profile)
+  return NextResponse.json(
+    { error: 'Please complete your profile before uploading a resume' },
+    { status: 400 }
+  )
+
     const body = await request.json()
 
     let extractedText = ''
@@ -19,7 +49,7 @@ export async function POST(request: Request) {
 
     const resume = await prisma.resume.create({
       data: {
-        userId:        'placeholder_01',
+        userId,
         fileName:      body.fileName,
         fileUrl:       body.fileUrl,
         extractedText: extractedText,
@@ -35,8 +65,13 @@ export async function POST(request: Request) {
 
 export async function GET() {
   try {
+    const { userId } = await auth()
+
+    if (!userId)
+      return NextResponse.json({ error: 'Unauthorised' }, { status: 401 })
+
     const resumes = await prisma.resume.findMany({
-      where:   { userId: 'placeholder_01' },
+      where:   { userId },
       include: { analysis: true },
       orderBy: { createdAt: 'desc' }
     })

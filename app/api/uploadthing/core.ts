@@ -1,5 +1,6 @@
 import { createUploadthing, type FileRouter } from "uploadthing/next"
 import { UploadThingError } from "uploadthing/server"
+import { auth } from "@clerk/nextjs/server"
 
 const f = createUploadthing()
 
@@ -8,7 +9,11 @@ export const ourFileRouter = {
     pdf: { maxFileSize: "4MB" }
   })
     .middleware(async () => {
-      return { userId: "placeholder_01" }
+      const { userId } = await auth()
+
+      if (!userId) throw new UploadThingError("Unauthorised")
+
+      return { userId }
     })
     .onUploadComplete(async ({ metadata, file }) => {
       console.log("Upload complete for:", metadata.userId)
