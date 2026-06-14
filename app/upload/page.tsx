@@ -8,32 +8,54 @@ export default function UploadPage() {
   const [error, setError] = useState<string>("")
   const [loading, setLoading] = useState<boolean>(false)
   const router = useRouter()
+  const [loadingMessage, setLoadingMessage] = useState<string>("Uploading...")
 
   const { startUpload } = useUploadThing("resumeUploader", {
     onClientUploadComplete: async (res) => {
-      const fileUrl  = res[0].ufsUrl
-      const fileName = res[0].name
+  const fileUrl  = res[0].ufsUrl
+  const fileName = res[0].name
 
-      try {
-        const response = await fetch('/api/resume', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ fileUrl, fileName })
-        })
+  try {
+    // Step 1 — Save resume to DB
+    const resumeResponse = await fetch('/api/resume', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ fileUrl, fileName })
+    })
 
-        if (!response.ok) {
-          setError("Failed to save resume. Please try again.")
-          setLoading(false)
-          return
-        }
+    if (!resumeResponse.ok) {
+      const data = await resumeResponse.json()
+      setError(data.error ?? "Failed to save resume. Please try again.")
+      setLoading(false)
+      return
+    }
 
-        router.push('/dashboard')
-      } catch (err) {
-        console.error(err)
-        setError("Something went wrong. Please try again.")
-        setLoading(false)
-      }
-    },
+    const resume = await resumeResponse.json()
+
+    // Step 2 — Trigger AI analysis
+    setLoadingMessage("Analysing your resume...")
+
+    const analyseResponse = await fetch('/api/analyse', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ resumeId: resume.id })
+    })
+
+    if (!analyseResponse.ok) {
+      setError("Analysis failed. Please try again.")
+      setLoading(false)
+      return
+    }
+
+    // Step 3 — Go to dashboard
+    router.push('/dashboard')
+
+  } catch (err) {
+    console.error(err)
+    setError("Something went wrong. Please try again.")
+    setLoading(false)
+  }
+},
     onUploadError: (err) => {
       setError(err.message)
       setLoading(false)
@@ -92,7 +114,7 @@ export default function UploadPage() {
           disabled={!file || loading}
           className="w-full mt-6 bg-green-600 text-white font-medium py-3 rounded-xl hover:bg-green-700 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
         >
-          {loading ? "Uploading..." : "Analyse Resume →"}
+          {loading ? loadingMessage : "Analyse Resume →"}
         </button>
       </div>
     </main>

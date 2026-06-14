@@ -1,56 +1,54 @@
- import GapReport from "@/components/analysis/GapReport"
- import AtsScoreCard from "@/components/analysis/AtsScoreCard"
-import RoleCard from "@/components/analysis/RoleCard"
-import { ResumeAnalysis } from "@/types"
+import { prisma } from '@/lib/prisma'
+import { auth } from '@clerk/nextjs/server'
+import { redirect } from 'next/navigation'
+import AtsScoreCard from '@/components/analysis/AtsScoreCard'
+import RoleCard from '@/components/analysis/RoleCard'
+import GapReport from '@/components/analysis/GapReport'
 
-const fakeData: ResumeAnalysis = {
-  atsScore: 67,
-  summary: "Your resume has a decent foundation but is missing key technical keywords and quantified impact in your project descriptions.",
-  roles: [
-    {
-      title: "SDE Intern — Tier 2 Startup",
-      match: 82,
-      reasoning: "Your React and Node.js projects align well with what early-stage startups look for in interns."
-    },
-    {
-      title: "QA Engineer — TCS",
-      match: 74,
-      reasoning: "Strong fundamentals and consistent academics make you a solid fit for TCS QA roles."
-    },
-    {
-      title: "SDE — Product Company",
-      match: 41,
-      reasoning: "Missing DSA depth and system design exposure that product companies expect even at intern level."
-    }
-  ],
-  gaps: [
-    {
-      section: "Projects",
-      issue: "No quantified impact in bullet points",
-      fix: "Add metrics — e.g. 'Reduced load time by 40%' instead of 'Improved performance'"
-    },
-    {
-      section: "Skills",
-      issue: "Missing DSA keywords expected by ATS for SDE roles",
-      fix: "Add a DSA section listing data structures you're comfortable with — Arrays, LinkedList, Trees, Graphs"
-    }
-  ]
-}
+export default async function DashboardPage() {
+  const { userId } = await auth()
+  if (!userId) redirect('/sign-in')
 
-export default function DashboardPage() {
+  const latestResume = await prisma.resume.findFirst({
+    where:   { userId },
+    orderBy: { createdAt: 'desc' },
+    include: { analysis: true }
+  })
+
+  if (!latestResume || !latestResume.analysis) {
+    return (
+      <main className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">No analysis yet</h1>
+          <p className="text-gray-500 mb-6">Upload your resume to get started</p>
+          
+          <a href="/upload"
+            className="bg-green-600 text-white px-6 py-3 rounded-xl hover:bg-green-700 transition-colors">
+          
+            Upload Resume
+          </a>
+        </div>
+      </main>
+    )
+  }
+
+  const analysis = latestResume.analysis
+  const roles = analysis.roles as any[]
+  const gaps  = analysis.gaps  as any[]
+
   return (
     <main className="min-h-screen bg-gray-50 py-16 px-6">
       <div className="max-w-2xl mx-auto">
         <h1 className="text-2xl font-bold text-gray-900 mb-2">Your Analysis</h1>
-        <p className="text-gray-500 text-sm mb-8">{fakeData.summary}</p>
+        <p className="text-gray-500 text-sm mb-8">{analysis.summary}</p>
 
         <div className="mb-8">
-          <AtsScoreCard score={fakeData.atsScore} />
+          <AtsScoreCard score={analysis.atsScore} />
         </div>
 
         <h2 className="text-lg font-semibold text-gray-900 mb-4">Suggested Roles</h2>
         <div className="flex flex-col gap-4 mb-8">
-          {fakeData.roles.map((role) => (
+          {roles.map((role: any) => (
             <RoleCard
               key={role.title}
               title={role.title}
@@ -59,8 +57,18 @@ export default function DashboardPage() {
             />
           ))}
         </div>
+
         <h2 className="text-lg font-semibold text-gray-900 mb-4">Resume Gaps</h2>
-<GapReport gaps={fakeData.gaps} />
+        <GapReport gaps={gaps} />
+
+        <div className="mt-8 text-center">
+          
+          <a href="/upload"
+            className="text-sm text-green-600 hover:text-green-700 font-medium">
+          
+            Upload a new resume →
+          </a>
+        </div>
       </div>
     </main>
   )
