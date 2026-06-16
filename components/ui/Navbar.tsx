@@ -29,6 +29,12 @@ export default function Navbar() {
             >
               New Analysis
             </Link>
+            <Link
+              href="/keywords"
+              className="text-sm text-gray-600 hover:text-gray-900"
+            >
+             JD Match
+            </Link>
             <UserButton />
           </>
         ) : (

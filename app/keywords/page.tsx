@@ -49,7 +49,7 @@ export default function KeywordsPage() {
     <main className="min-h-screen bg-gray-50 py-16 px-6">
       <div className="max-w-2xl mx-auto">
 
-        <h1 className="text-2xl font-bold text-gray-900 mb-2">ATS Keyword Extractor</h1>
+        <h1 className="text-2xl font-bold text-gray-900 mb-2">JD Match</h1>
         <p className="text-gray-500 text-sm mb-8">
           Paste a job description and we'll tell you which keywords your resume is missing.
         </p>
