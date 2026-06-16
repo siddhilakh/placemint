@@ -75,6 +75,15 @@ Four tables — User, StudentProfile, Resume, ResumeAnalysis. StudentProfile →
 - UserButton in navbar with conditional signed-in/signed-out states
 - Full user flow: sign up → profile → upload → dashboard
 
+## Week 6 — AI Analysis
+- Gemini 2.5 Flash integration via @google/generative-ai
+- Structured prompt with India-specific placement context
+- Returns ATS score, role suggestions with match %, gap report with fixes
+- Prompt versioning — lib/prompts.ts with CURRENT_PROMPT_VERSION
+- ResumeAnalysis saved to database with promptVersion field
+- Dashboard replaced with real AI output — no more fake data
+- Loading states: "Uploading..." → "Analysing your resume..."
+
 ## Known Limitations
 - Image-based PDFs (scanned documents) return limited text. Planned fix: Google Cloud Vision OCR for production.
 - Upload page shows guidance: "For best results, upload a PDF created from Word, Google Docs, or Canva."
@@ -88,6 +97,8 @@ Four tables — User, StudentProfile, Resume, ResumeAnalysis. StudentProfile →
 - **Clerk v7 API changes**: Several Clerk APIs changed in v7 — auth() is now async, SignedIn/SignedOut components moved, afterSignOutUrl prop removed from UserButton. Fixed by using useAuth() hook with conditional rendering instead of SignedIn/SignedOut components.
 - **Foreign key constraint on resume upload**: Resume table foreign key points to StudentProfile, not User directly. Upload failed if profile wasn't completed first. Fixed by adding a profile existence check in POST /api/resume that returns a clear error if profile is missing.
 - **Float precision on CGPA**: Postgres Float type stored 8 as 7.9 due to IEEE 754 floating point representation. Fixed by migrating cgpa column from Float to Decimal type.
+- **Gemini model name change**: gemini-1.5-flash returned 404 — model deprecated. Updated to gemini-2.5-flash.
+- **Free tier quota exhaustion**: Hit 30 RPD limit during testing. Created a new API key on a fresh Google project to reset quota.
 
 ## Why PlaceMint over just asking an AI
 Generic AI tools can review a resume but they don't know your college tier, your placement season timeline, or the difference between TCS Ninja and TCS Digital. PlaceMint combines your resume with your full profile to give output specific to the Indian campus hiring reality. Saved history means you can track improvement over multiple uploads.
