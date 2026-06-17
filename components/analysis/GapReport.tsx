@@ -1,4 +1,5 @@
 "use client"
+
 import { useState } from "react"
 import { ResumeGap } from "@/types"
 
@@ -13,48 +14,102 @@ export default function GapReport({ gaps }: Props) {
     setOpenIndex(openIndex === index ? null : index)
   }
 
-  function getSeverityColor(index: number) {
-    return index === 0 ? "border-red-200 bg-red-50" : "border-amber-200 bg-amber-50"
-  }
-
-  function getSeverityBadge(index: number) {
+  function getContainerStyle(index: number) {
     return index === 0
-      ? "bg-red-100 text-red-600"
-      : "bg-amber-100 text-amber-600"
+      ? "border-red-500/20 bg-red-500/[0.04]"
+      : "border-white/10 bg-white/[0.03]"
   }
 
-  function getSeverityLabel(index: number) {
+  function getBadgeStyle(index: number) {
+    return index === 0
+      ? "bg-red-500/10 text-red-400 border border-red-500/20"
+      : "bg-[#42E8D8]/10 text-[#42E8D8] border border-[#42E8D8]/20"
+  }
+
+  function getLabel(index: number) {
     return index === 0 ? "Critical" : "Improvement"
   }
 
   return (
-    <div className="flex flex-col gap-3">
+    <div className="flex flex-col gap-4">
       {gaps.map((gap, index) => (
         <div
           key={gap.section}
-          className={`border rounded-2xl overflow-hidden ${getSeverityColor(index)}`}
+          className={`
+            relative
+            overflow-hidden
+            rounded-3xl
+            border
+            backdrop-blur-xl
+            transition-all
+            duration-300
+            hover:border-[#42E8D8]/20
+            hover:shadow-[0_0_30px_rgba(66,232,216,0.08)]
+            ${getContainerStyle(index)}
+          `}
         >
+          {/* Subtle glow */}
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(66,232,216,0.04),transparent_70%)] pointer-events-none" />
+
           <button
             onClick={() => toggle(index)}
-            className="w-full flex items-center justify-between px-5 py-4 text-left"
+            className="
+              relative
+              z-10
+              w-full
+              flex
+              items-center
+              justify-between
+              px-6
+              py-5
+              text-left
+            "
           >
-            <div className="flex items-center gap-3">
-              <span className={`text-xs font-medium px-2 py-1 rounded-full ${getSeverityBadge(index)}`}>
-                {getSeverityLabel(index)}
+            <div className="flex items-center gap-4">
+              <span
+                className={`
+                  text-xs
+                  font-medium
+                  px-3
+                  py-1.5
+                  rounded-full
+                  ${getBadgeStyle(index)}
+                `}
+              >
+                {getLabel(index)}
               </span>
-              <span className="text-sm font-medium text-gray-900">{gap.section}</span>
+
+              <span className="text-white font-medium text-base">
+                {gap.section}
+              </span>
             </div>
-            <span className="text-gray-400 text-sm">{openIndex === index ? "▲" : "▼"}</span>
+
+            <span className="text-[#8f9399] text-sm">
+              {openIndex === index ? "▲" : "▼"}
+            </span>
           </button>
 
           {openIndex === index && (
-            <div className="px-5 pb-4 flex flex-col gap-2">
-              <p className="text-sm text-gray-600">
-                <span className="font-medium">Issue: </span>{gap.issue}
-              </p>
-              <p className="text-sm text-gray-600">
-                <span className="font-medium">Fix: </span>{gap.fix}
-              </p>
+            <div className="relative z-10 px-6 pb-6 flex flex-col gap-4">
+              <div>
+                <p className="text-sm font-medium text-white mb-1">
+                  Issue
+                </p>
+
+                <p className="text-sm leading-relaxed text-[#b0b4ba]">
+                  {gap.issue}
+                </p>
+              </div>
+
+              <div>
+                <p className="text-sm font-medium text-[#42E8D8] mb-1">
+                  Recommended Fix
+                </p>
+
+                <p className="text-sm leading-relaxed text-[#b0b4ba]">
+                  {gap.fix}
+                </p>
+              </div>
             </div>
           )}
         </div>

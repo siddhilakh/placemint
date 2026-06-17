@@ -82,41 +82,130 @@ export default function UploadPage() {
   }
 
   return (
-    <main className="min-h-screen bg-gray-50 py-16 px-6">
-      <div className="max-w-xl mx-auto">
-        <h1 className="text-2xl font-bold text-gray-900 mb-2">Upload your resume</h1>
-        <p className="text-gray-500 text-sm mb-8">PDF only, maximum 4MB.</p>
+  <main
+    className="min-h-screen px-6 py-22 relative overflow-hidden"
+    style={{ backgroundColor: "#0b0f0e" }}
+  >
+    {/* Background Glow */}
+    <div
+      className="absolute inset-0"
+      style={{
+        background:
+          "radial-gradient(ellipse 70% 60% at 50% 0%, rgba(45,212,191,0.18), transparent 60%)",
+      }}
+    />
 
-        <label className="flex flex-col items-center justify-center w-full h-48 border-2 border-dashed border-gray-300 rounded-2xl cursor-pointer hover:border-green-500 hover:bg-green-50 transition-colors">
+    <div className="relative z-10 max-w-2xl mx-auto">
+      {/* Badge */}
+      <div
+        className="w-fit mx-auto mb-8 px-5 py-2 rounded-full"
+        style={{
+          backgroundColor: "rgba(45,212,191,0.08)",
+          border: "1px solid rgba(45,212,191,0.2)",
+          color: "#2dd4bf",
+        }}
+      >
+        Resume Analysis
+      </div>
+
+      {/* Heading */}
+      <h1 className="text-center text-5xl font-bold mb-4">
+  <span className="text-white">Upload</span>{" "}
+  <span className="bg-gradient-to-r from-[#42E8D8] via-[#1FD5D5] to-[#13B9E8] bg-clip-text text-transparent">
+    Your Resume
+  </span>
+</h1>
+
+      <p className="text-center text-lg text-[#8f9399] mb-12">
+        Get your ATS score, role matches, and a detailed gap report.
+      </p>
+
+      {/* Upload Card */}
+      <div
+        className="rounded-3xl p-8 backdrop-blur-xl"
+        style={{
+          backgroundColor: "rgba(255,255,255,0.03)",
+          border: "1px solid rgba(255,255,255,0.08)",
+          boxShadow: "0 0 40px rgba(45,212,191,0.08)",
+        }}
+      >
+        <label
+          className="
+            flex flex-col items-center justify-center
+            w-full h-72
+            rounded-2xl
+            cursor-pointer
+            transition-all duration-300
+            hover:scale-[1.01]
+          "
+          style={{
+            border: "2px dashed rgba(45,212,191,0.25)",
+            backgroundColor: "rgba(255,255,255,0.02)",
+          }}
+        >
           <input
             type="file"
             accept=".pdf"
             className="hidden"
-            onChange={(e) => e.target.files?.[0] && handleFile(e.target.files[0])}
+            onChange={(e) =>
+              e.target.files?.[0] && handleFile(e.target.files[0])
+            }
           />
+
           {file ? (
             <div className="text-center">
-              <p className="text-green-600 font-medium text-sm">{file.name}</p>
-              <p className="text-gray-400 text-xs mt-1">Click to change file</p>
+              <p className="text-[#2dd4bf] font-semibold text-lg">
+                {file.name}
+              </p>
+              <p className="text-[#8f9399] text-sm mt-2">
+                Click to choose another file
+              </p>
             </div>
           ) : (
             <div className="text-center">
-              <p className="text-gray-400 text-sm">Click or drag your PDF here</p>
-              <p className="text-gray-300 text-xs mt-1">Maximum 4MB</p>
+              <div className="text-5xl mb-4">📄</div>
+
+              <p className="text-white text-lg font-medium">
+                Click or drag your PDF here
+              </p>
+
+              <p className="text-[#8f9399] text-sm mt-2">
+                PDF only • Maximum 4MB
+              </p>
             </div>
           )}
         </label>
 
-        {error && <p className="text-red-500 text-sm mt-3">{error}</p>}
+        {error && (
+          <p className="text-red-400 text-sm mt-4 text-center">
+            {error}
+          </p>
+        )}
 
         <button
           onClick={handleSubmit}
           disabled={!file || loading}
-          className="w-full mt-6 bg-green-600 text-white font-medium py-3 rounded-xl hover:bg-green-700 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+          className="
+            w-full mt-8
+            py-4
+            rounded-2xl
+            text-black
+            font-semibold
+            transition-all duration-300
+            hover:scale-[1.02]
+            disabled:opacity-40
+            disabled:cursor-not-allowed
+          "
+          style={{
+            background:
+              "linear-gradient(135deg,#42E8D8 0%,#20C9D8 100%)",
+            boxShadow: "0 0 30px rgba(45,212,191,0.25)",
+          }}
         >
           {loading ? loadingMessage : "Analyse Resume →"}
         </button>
       </div>
-    </main>
-  )
+    </div>
+  </main>
+)
 }

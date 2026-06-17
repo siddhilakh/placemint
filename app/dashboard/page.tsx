@@ -7,25 +7,48 @@ import GapReport from '@/components/analysis/GapReport'
 
 export default async function DashboardPage() {
   const { userId } = await auth()
+
   if (!userId) redirect('/sign-in')
 
   const latestResume = await prisma.resume.findFirst({
-    where:   { userId },
+    where: { userId },
     orderBy: { createdAt: 'desc' },
     include: { analysis: true }
   })
 
   if (!latestResume || !latestResume.analysis) {
     return (
-      <main className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <main className="min-h-screen bg-[#050505] flex items-center justify-center">
         <div className="text-center">
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">No analysis yet</h1>
-          <p className="text-gray-500 mb-6">Upload your resume to get started</p>
-          
-          <a href="/upload"
-            className="bg-green-600 text-white px-6 py-3 rounded-xl hover:bg-green-700 transition-colors">
-          
-            Upload Resume
+          <h1 className="text-3xl font-bold text-white mb-3">
+            No analysis yet
+          </h1>
+
+          <p className="text-[#8f9399] mb-8">
+            Upload your resume to get started.
+          </p>
+
+          <a
+            href="/upload"
+            className="
+              inline-flex
+              items-center
+              px-6
+              py-3
+              rounded-xl
+              font-medium
+              text-black
+              bg-gradient-to-r
+              from-[#42E8D8]
+              via-[#1FD5D5]
+              to-[#13B9E8]
+              shadow-[0_0_25px_rgba(66,232,216,0.35)]
+              transition-all
+              duration-300
+              hover:scale-[1.02]
+            "
+          >
+            Upload Resume →
           </a>
         </div>
       </main>
@@ -34,20 +57,75 @@ export default async function DashboardPage() {
 
   const analysis = latestResume.analysis
   const roles = analysis.roles as any[]
-  const gaps  = analysis.gaps  as any[]
+  const gaps = analysis.gaps as any[]
 
   return (
-    <main className="min-h-screen bg-gray-50 py-16 px-6">
-      <div className="max-w-2xl mx-auto">
-        <h1 className="text-2xl font-bold text-gray-900 mb-2">Your Analysis</h1>
-        <p className="text-gray-500 text-sm mb-8">{analysis.summary}</p>
+    <main className="min-h-screen py-20 px-6 relative overflow-hidden bg-[#050505]">
+      {/* Background Glow */}
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(66,232,216,0.12),transparent_55%)] pointer-events-none" />
 
-        <div className="mb-8">
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_bottom,rgba(19,185,232,0.08),transparent_60%)] pointer-events-none" />
+
+      {/* Content */}
+      <div className="relative z-10 max-w-5xl mx-auto">
+        <div className="mb-14">
+  <div
+    className="
+      inline-flex
+      items-center
+      px-5
+      py-2
+      rounded-full
+      border
+      border-[#42E8D8]/20
+      bg-[#42E8D8]/5
+      text-[#42E8D8]
+      text-sm
+      font-medium
+      mb-6
+    "
+  >
+    Resume Analysis Complete
+  </div>
+
+  <h1 className="text-5xl md:text-6xl font-bold text-white mb-6">
+    Your Resume
+    <span className="bg-gradient-to-r from-[#42E8D8] via-[#1FD5D5] to-[#13B9E8] bg-clip-text text-transparent">
+      {" "}Analysis
+    </span>
+  </h1>
+
+  <div
+    className="
+      rounded-3xl
+      border
+      border-white/10
+      bg-white/[0.03]
+      backdrop-blur-xl
+      p-6
+      shadow-[0_0_30px_rgba(66,232,216,0.08)]
+    "
+  >
+    <p className="text-[#b0b4ba] text-lg leading-relaxed">
+      {analysis.summary}
+    </p>
+  </div>
+</div>
+
+        {/* ATS */}
+        <div className="mb-14">
           <AtsScoreCard score={analysis.atsScore} />
         </div>
 
-        <h2 className="text-lg font-semibold text-gray-900 mb-4">Suggested Roles</h2>
-        <div className="flex flex-col gap-4 mb-8">
+        {/* Roles */}
+        <h2 className="text-3xl font-bold mb-6">
+  <span className="text-white">Suggested</span>{" "}
+  <span className="bg-gradient-to-r from-[#42E8D8] to-[#13B9E8] bg-clip-text text-transparent">
+    Roles
+  </span>
+</h2>
+
+        <div className="flex flex-col gap-5 mb-14">
           {roles.map((role: any) => (
             <RoleCard
               key={role.title}
@@ -58,14 +136,30 @@ export default async function DashboardPage() {
           ))}
         </div>
 
-        <h2 className="text-lg font-semibold text-gray-900 mb-4">Resume Gaps</h2>
+        {/* Gaps */}
+        <h2 className="text-3xl font-bold mb-6">
+  <span className="text-white">Resume</span>{" "}
+  <span className="bg-gradient-to-r from-[#42E8D8] to-[#13B9E8] bg-clip-text text-transparent">
+    Gaps
+  </span>
+</h2>
+
         <GapReport gaps={gaps} />
 
-        <div className="mt-8 text-center">
-          
-          <a href="/upload"
-            className="text-sm text-green-600 hover:text-green-700 font-medium">
-          
+        {/* CTA */}
+        <div className="mt-12 text-center">
+          <a
+            href="/upload"
+            className="
+              inline-flex
+              items-center
+              gap-2
+              text-[#42E8D8]
+              font-medium
+              hover:text-white
+              transition-colors
+            "
+          >
             Upload a new resume →
           </a>
         </div>

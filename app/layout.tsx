@@ -19,8 +19,8 @@ export default function RootLayout({
 }) {
   return (
     <ClerkProvider>
-      <html lang="en">
-        <body>
+      <html lang="en" style={{ backgroundColor: '#0a0a0a' }}>
+        <body style={{ backgroundColor: '#0a0a0a', color: '#ffffff' }} className="antialiased">
           <Suspense>
             <NextSSRPlugin routerConfig={extractRouterConfig(ourFileRouter)} />
           </Suspense>

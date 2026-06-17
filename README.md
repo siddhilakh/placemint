@@ -84,6 +84,15 @@ Four tables — User, StudentProfile, Resume, ResumeAnalysis. StudentProfile →
 - Dashboard replaced with real AI output — no more fake data
 - Loading states: "Uploading..." → "Analysing your resume..."
 
+## Week 7 — JD Match Feature
+- ATS Keyword Extractor built at /keywords route
+- Paste any job description — get matched and missing keywords instantly
+- Gemini compares JD keywords against latest uploaded resume
+- Results show match percentage, matched keywords in green, missing in red
+- Specific recommendation for most impactful missing keyword
+- JD Match added to signed-in navbar
+- Tested with frontend, Salesforce, and data engineering JDs
+
 ## Known Limitations
 - Image-based PDFs (scanned documents) return limited text. Planned fix: Google Cloud Vision OCR for production.
 - Upload page shows guidance: "For best results, upload a PDF created from Word, Google Docs, or Canva."
