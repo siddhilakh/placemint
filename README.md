@@ -2,115 +2,204 @@
 
 AI-powered placement companion for Indian engineering students.
 
+[Live Demo](your-vercel-url-here) · [GitHub](https://github.com/siddhilakh) · [LinkedIn](https://linkedin.com/in/siddhi-lakhotia-2b6138336)
+
+---
+
 ## What it does
 
-PlaceMint analyses your resume against your profile — branch, CGPA, college tier — and gives you an ATS score, a list of roles you're realistically eligible for, and a specific gap report with actionable fixes. Built for the Indian campus hiring context, not generic US tech hiring.
+Most resume tools are built for US tech hiring. They have no concept of TCS Ninja vs TCS Digital, CGPA cutoffs, college tier, or how Indian campus placement rounds actually work.
 
-Every analysis is saved to your account so you can track your improvement over time — upload again after making changes and see your score go up.
+PlaceMint is different. Upload your resume, tell us your branch, CGPA, and college tier — and get:
+
+- An **ATS score** with a plain-English summary of where you stand
+- **Role suggestions** matched to your realistic eligibility, not generic recommendations
+- A **gap report** that tells you exactly what's wrong and how to fix it — section by section
+- A **JD Match tool** — paste any job description and instantly see which keywords your resume is missing
+- **Resume history** — every analysis is saved so you can track your ATS score improvement over time, compare with your previous upload, and see specific improvement points between versions
+
+---
 
 ## Tech Stack
 
-- Next.js 15 + TypeScript
-- Tailwind CSS
-- PostgreSQL (Neon) + Prisma 5
-- Uploadthing — file storage
-- unpdf — PDF text extraction
-- Clerk — email based auth (Week 5)
-- Gemini API — AI analysis (Week 6)
+| Layer | Technology |
+|-------|-----------|
+| Framework | Next.js 15 + TypeScript |
+| Styling | Tailwind CSS v4 |
+| Database | PostgreSQL via Neon |
+| ORM | Prisma 5 |
+| Auth | Clerk v7 |
+| File storage | Uploadthing |
+| PDF parsing | pdf-parse |
+| AI analysis | Gemini 2.5 Flash |
+| Deployment | Vercel |
+
+---
 
 ## Pages
 
-| Route | What it does |
+| Route | Description |
 |-------|-------------|
 | `/` | Landing page — hero, features, how it works |
-| `/upload` | Resume upload with PDF validation |
-| `/profile` | Student profile form with validation |
-| `/dashboard` | Analysis results — ATS score, role cards, gap report |
-| `/sign-in` | Clerk sign-in page |
-| `/sign-up` | Clerk sign-up page |
+| `/sign-in` | Clerk authentication |
+| `/sign-up` | Clerk registration |
+| `/profile` | Student profile — branch, CGPA, college tier, graduation year |
+| `/upload` | Resume upload with PDF validation and AI analysis trigger |
+| `/dashboard` | Latest analysis — ATS score, role suggestions, gap report |
+| `/keywords` | JD Match — paste a job description, get keyword gap analysis |
+| `/history` | Resume version history — ATS score timeline, improvement comparison, per-analysis snapshots |
+
+---
 
 ## API Routes
 
-| Method | Route | What it does |
+| Method | Route | Description |
 |--------|-------|-------------|
-| POST | `/api/profile` | Save or update student profile |
-| GET | `/api/profile` | Fetch student profile with resumes |
-| POST | `/api/resume` | Save resume + extract PDF text |
-| GET | `/api/resume` | Fetch all resumes for a user |
+| POST | `/api/profile` | Create or update student profile |
+| GET | `/api/profile` | Fetch profile with linked resumes |
+| POST | `/api/resume` | Save resume metadata + extract PDF text |
+| GET | `/api/resume` | Fetch all resumes for authenticated user |
+| POST | `/api/analyse` | Trigger Gemini analysis for a resume |
+| POST | `/api/keywords` | JD keyword comparison against latest resume |
+
+---
 
 ## Database Schema
 
-Four tables — User, StudentProfile, Resume, ResumeAnalysis. StudentProfile → Resume is one-to-many. Resume → ResumeAnalysis is one-to-one. ResumeAnalysis has a `promptVersion` field for prompt versioning.
+Four tables with explicit foreign key relationships:
 
-## Week 1 — Foundation
-- Next.js + TypeScript + Tailwind project setup
-- Full folder structure
-- Core TypeScript types
-- Landing page — 5 sections
+- **User** — Clerk userId as primary key, email, name
+- **StudentProfile** — branch, CGPA (Decimal), college tier, graduation year. One-to-one with User, one-to-many with Resume
+- **Resume** — fileUrl, fileName, extractedText. Foreign key to StudentProfile
+- **ResumeAnalysis** — atsScore, roles (JSON), gaps (JSON), summary, promptVersion. One-to-one with Resume
 
-## Week 2 — UI Shell
-- Resume upload page with file validation
-- Dashboard with ATS score, role cards, gap report
-- Profile form with controlled inputs and validation
-- Full user flow connected end to end
+Key design decisions: roles and gaps stored as JSON columns — always read together with the analysis, never queried independently, so separate tables would add joins for no benefit. promptVersion field on every analysis so improvements to the prompt don't silently invalidate old results.
 
-## Week 3 — Database
-- Neon PostgreSQL with 4 tables
-- Prisma 5 ORM
-- Profile and Resume API routes
-- Profile form saves to database
+---
 
-## Week 4 — File Upload + PDF Extraction
-- Uploadthing integration for real file storage
-- Custom upload UI using useUploadThing hook
-- PDF text extraction using unpdf
-- Extracted text saved to database alongside file URL
-- Prompt versioning added — lib/prompts.ts with v1 prompt
+## Architecture
+User uploads PDF
 
-## Week 5 — Authentication
-- Clerk integration with email and Google sign-in
-- Route protection via middleware — all routes protected by default
-- Real Clerk userId replacing placeholder in all API routes and Uploadthing
-- Per-user data isolation — every Prisma query filtered by userId
-- UserButton in navbar with conditional signed-in/signed-out states
-- Full user flow: sign up → profile → upload → dashboard
+↓
 
-## Week 6 — AI Analysis
-- Gemini 2.5 Flash integration via @google/generative-ai
-- Structured prompt with India-specific placement context
-- Returns ATS score, role suggestions with match %, gap report with fixes
-- Prompt versioning — lib/prompts.ts with CURRENT_PROMPT_VERSION
-- ResumeAnalysis saved to database with promptVersion field
-- Dashboard replaced with real AI output — no more fake data
-- Loading states: "Uploading..." → "Analysing your resume..."
+Uploadthing stores file → returns CDN URL
 
-## Week 7 — JD Match Feature
-- ATS Keyword Extractor built at /keywords route
-- Paste any job description — get matched and missing keywords instantly
-- Gemini compares JD keywords against latest uploaded resume
-- Results show match percentage, matched keywords in green, missing in red
-- Specific recommendation for most impactful missing keyword
-- JD Match added to signed-in navbar
-- Tested with frontend, Salesforce, and data engineering JDs
+↓
+
+POST /api/resume — pdf-parse extracts text → saved to DB
+
+↓
+
+POST /api/analyse — fetches resume text + student profile
+
+↓
+
+Gemini 2.5 Flash — structured prompt returns JSON
+
+↓
+
+ResumeAnalysis saved to DB with promptVersion
+
+↓
+
+Dashboard reads from DB — server component, no client fetch
+---
+
+## How the AI works
+
+The prompt sends two things to Gemini: the extracted resume text and the student's full profile. The profile is what makes analysis India-specific — a CSE student with 8.5 CGPA from a Tier 2 college gets completely different role suggestions than an ECE student with 6.2 from a Tier 3 college.
+
+The prompt instructs Gemini to return strict JSON matching the database schema exactly. The response is cleaned (markdown backticks stripped), parsed, validated, and saved. Prompt versioning means every analysis row knows which prompt version generated it — when the prompt improves, users can re-analyse and see the difference.
+
+The JD Match feature sends the job description and resume text together in a separate prompt designed specifically for keyword comparison — not quality assessment. It returns matched keywords, missing keywords, match percentage, and a single most-impactful recommendation.
+
+---
+
+## Resume History
+
+Every resume upload and its corresponding analysis is stored permanently. The history page shows:
+
+- ATS score timeline across all uploads
+- Side-by-side comparison between the latest and previous analysis
+- Specific improvement points — what changed between versions
+- Clickable snapshots — click any historical analysis to see the full dashboard view for that specific upload
+
+This turns PlaceMint from a one-time tool into a placement preparation tracker.
+
+---
 
 ## Known Limitations
-- Image-based PDFs (scanned documents) return limited text. Planned fix: Google Cloud Vision OCR for production.
-- Upload page shows guidance: "For best results, upload a PDF created from Word, Google Docs, or Canva."
+
+- **Scanned/image-based PDFs** — pdf-parse extracts the text layer only. PDFs created by scanning physical documents have no text layer. Planned fix: integrate Google Cloud Vision OCR for production.
+- **Gemini free tier** — 30 requests per day per API key. Sufficient for personal use and testing; production at scale would require a paid tier or request queuing.
+- **Prompt consistency** — LLMs occasionally return slightly different JSON structures despite explicit instructions. Current handling: strip markdown, parse, catch errors. Future improvement: JSON schema validation before saving.
+
+---
 
 ## What went wrong and how I fixed it
-- **Prisma 7 → 5 downgrade**: Prisma 7 has breaking changes incompatible with standard Next.js setup. Downgraded to Prisma 5.
-- **Uploadthing UI components**: UploadDropzone and UploadButton conflicted with Tailwind v4 styles. Switched to useUploadThing hook for full UI control.
-- **Tesseract.js on Windows**: Worker script path issues in Next.js on Windows. Deferred OCR to production using Google Cloud Vision.
-- **next-auth conflict**: next-auth was installed as an unused dependency and conflicted with Clerk's session handling — middleware wasn't intercepting requests at all. Uninstalled next-auth completely and middleware worked immediately.
-- **Next.js 16 middleware deprecation**: Next.js 16 deprecated the middleware.ts convention in favour of a proxy system. Downgraded to Next.js 15 where Clerk middleware works correctly.
-- **Clerk v7 API changes**: Several Clerk APIs changed in v7 — auth() is now async, SignedIn/SignedOut components moved, afterSignOutUrl prop removed from UserButton. Fixed by using useAuth() hook with conditional rendering instead of SignedIn/SignedOut components.
-- **Foreign key constraint on resume upload**: Resume table foreign key points to StudentProfile, not User directly. Upload failed if profile wasn't completed first. Fixed by adding a profile existence check in POST /api/resume that returns a clear error if profile is missing.
-- **Float precision on CGPA**: Postgres Float type stored 8 as 7.9 due to IEEE 754 floating point representation. Fixed by migrating cgpa column from Float to Decimal type.
-- **Gemini model name change**: gemini-1.5-flash returned 404 — model deprecated. Updated to gemini-2.5-flash.
-- **Free tier quota exhaustion**: Hit 30 RPD limit during testing. Created a new API key on a fresh Google project to reset quota.
 
-## Why PlaceMint over just asking an AI
-Generic AI tools can review a resume but they don't know your college tier, your placement season timeline, or the difference between TCS Ninja and TCS Digital. PlaceMint combines your resume with your full profile to give output specific to the Indian campus hiring reality. Saved history means you can track improvement over multiple uploads.
+**Prisma version conflict** — Prisma 7 had breaking changes incompatible with the standard Next.js setup. Downgraded to Prisma 5 which has stable Next.js support.
+
+**Uploadthing UI components** — UploadDropzone and UploadButton conflicted with Tailwind v4's new CSS engine. Switched to the useUploadThing hook for full custom UI control.
+
+**next-auth ghost dependency** — next-auth was installed as an unused leftover dependency. It conflicted with Clerk's session middleware — route protection stopped working entirely. Uninstalling it immediately fixed the middleware.
+
+**Next.js 16 middleware deprecation** — Next.js 16 deprecated the middleware.ts convention in favour of a proxy system, breaking Clerk's middleware. Downgraded to Next.js 15 where Clerk middleware works correctly.
+
+**Clerk v7 API changes** — auth() became async, SignedIn/SignedOut components were removed from the main package, afterSignOutUrl prop was removed from UserButton. Fixed by switching to the useAuth() hook with conditional rendering.
+
+**Foreign key constraint on resume upload** — Resume.userId is a foreign key to StudentProfile.userId, not User.id directly. Upload failed if the student skipped the profile form. Fixed by adding a profile existence check in POST /api/resume that returns a clear 400 error before attempting the insert.
+
+**CGPA floating point precision** — Postgres Float type stored 8 as 7.9 due to IEEE 754 representation. Migrated cgpa column from Float to Decimal type — exact decimal storage with no precision loss.
+
+**Gemini model deprecation** — gemini-1.5-flash returned 404. Updated to gemini-2.5-flash which is the current stable model.
+
+**Free tier quota during development** — Hit the 30 RPD limit repeatedly during testing. Solution: create a new API key under a fresh Google Cloud project — each project gets its own independent quota.
+
+---
+
+## Why not just use ChatGPT?
+
+ChatGPT can review a resume. It cannot tell you whether your 7.2 CGPA from a Tier 3 college meets the cutoff for TCS Digital vs TCS Ninja. It doesn't know which companies are coming to your campus. It can't track whether your ATS score improved between your second and third resume version.
+
+PlaceMint is built around a specific context — Indian campus placements — and that context is baked into every prompt, every role suggestion, and every gap fix.
+
+---
+
+## Local Setup
+
+```bash
+git clone https://github.com/siddhilakh/placemint
+cd placemint
+npm install
+```
+
+Create `.env.local`:
+DATABASE_URL=
+
+NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=
+
+CLERK_SECRET_KEY=
+
+NEXT_PUBLIC_CLERK_SIGN_IN_URL=/sign-in
+
+NEXT_PUBLIC_CLERK_SIGN_UP_URL=/sign-up
+
+NEXT_PUBLIC_CLERK_SIGN_IN_FALLBACK_REDIRECT_URL=/dashboard
+
+NEXT_PUBLIC_CLERK_SIGN_UP_FALLBACK_REDIRECT_URL=/profile
+
+UPLOADTHING_SECRET=
+
+UPLOADTHING_APP_ID=
+
+GEMINI_API_KEY=
+```bash
+npx prisma migrate dev
+npm run dev
+```
+
+---
 
 ## Author
 
