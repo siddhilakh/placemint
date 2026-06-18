@@ -22,10 +22,13 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Resume not found' }, { status: 404 })
 
     if (resume.extractedText === 'TEXT_EXTRACTION_FAILED')
-      return NextResponse.json(
-        { error: 'Resume text could not be extracted. Please upload a text-based PDF.' },
-        { status: 400 }
-      )
+  return NextResponse.json(
+    {
+      error:
+        'This PDF does not contain enough readable resume content. Please upload a resume exported from Word, Google Docs, Canva, or Overleaf.'
+    },
+    { status: 400 }
+  )
 
     const profile = await prisma.studentProfile.findUnique({
       where: { userId }
