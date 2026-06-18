@@ -147,22 +147,72 @@ export default async function DashboardPage() {
         <GapReport gaps={gaps} />
 
         {/* CTA */}
-        <div className="mt-12 text-center">
-          <a
-            href="/upload"
-            className="
-              inline-flex
-              items-center
-              gap-2
-              text-[#42E8D8]
-              font-medium
-              hover:text-white
-              transition-colors
-            "
-          >
-            Upload a new resume →
-          </a>
-        </div>
+<div
+  className="
+    mt-16
+    rounded-3xl
+    border
+    border-white/10
+    bg-white/[0.03]
+    backdrop-blur-xl
+    p-10
+    text-center
+    shadow-[0_0_30px_rgba(66,232,216,0.08)]
+  "
+>
+  <h3 className="text-3xl font-bold text-white mb-4">
+    Ready for another review?
+  </h3>
+
+  <p className="text-[#8f9399] text-lg max-w-2xl mx-auto mb-8">
+    Update your resume, add new projects, improve your skills,
+    and see how your ATS score changes over time.
+  </p>
+
+  <a
+    href="/upload"
+    className="
+      inline-flex
+      items-center
+      px-8
+      py-4
+      rounded-2xl
+      text-black
+      font-semibold
+      transition-all
+      duration-300
+      hover:scale-[1.02]
+    "
+    style={{
+      background:
+        "linear-gradient(135deg,#42E8D8 0%,#1FD5D5 50%,#13B9E8 100%)",
+      boxShadow: "0 0 30px rgba(66,232,216,0.25)",
+    }}
+  >
+    Start New Analysis →
+  </a>
+  <div className="mt-8 pt-8 border-t border-white/10">
+  <p className="text-[#8f9399] text-sm mb-4">
+    Want to compare your progress over time?
+  </p>
+
+  <a
+    href="/history"
+    className="
+      inline-flex
+      items-center
+      gap-2
+      text-[#42E8D8]
+      font-medium
+      hover:text-white
+      transition-all
+      duration-300
+    "
+  >
+    View Previous Analyses →
+  </a>
+</div>
+</div>
       </div>
     </main>
   )
