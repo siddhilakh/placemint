@@ -38,8 +38,20 @@ export default async function AnalysisPage({ params }: Props) {
   }
 
   const analysis = resume.analysis
-  const roles = analysis.roles as any[]
-  const gaps = analysis.gaps as any[]
+  type Role = {
+  title: string
+  match: number
+  reasoning: string
+}
+
+type Gap = {
+  section: string
+  issue: string
+  fix: string
+}
+
+const roles = analysis.roles as Role[]
+const gaps = analysis.gaps as Gap[]
 
   return (
     <main className="min-h-screen py-20 px-6 relative overflow-hidden bg-[#050505]">
@@ -115,7 +127,7 @@ export default async function AnalysisPage({ params }: Props) {
           </h2>
 
           <div className="flex flex-col gap-5">
-            {roles.map((role: any) => (
+            {roles.map((role: Role) => (
               <RoleCard
                 key={role.title}
                 title={role.title}

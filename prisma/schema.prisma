@@ -8,13 +8,12 @@ datasource db {
 }
 
 model User {
-  id            String   @id @default(cuid())
-  email         String   @unique
-  name          String?
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-
-  profile       StudentProfile?
+  id        String          @id @default(cuid())
+  email     String          @unique
+  name      String?
+  createdAt DateTime        @default(now())
+  updatedAt DateTime        @updatedAt
+  profile   StudentProfile?
 }
 
 model StudentProfile {
@@ -27,32 +26,29 @@ model StudentProfile {
   graduationYear Int
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
-
-  user           User     @relation(fields: [userId], references: [id])
   resumes        Resume[]
+  user           User     @relation(fields: [userId], references: [id])
 }
 
 model Resume {
-  id          String   @id @default(cuid())
-  userId      String
-  fileUrl     String
-  fileName    String
+  id            String          @id @default(cuid())
+  userId        String
+  fileUrl       String
+  fileName      String
+  createdAt     DateTime        @default(now())
   extractedText String?
-  createdAt   DateTime @default(now())
-
-  profile     StudentProfile @relation(fields: [userId], references: [userId])
-  analysis    ResumeAnalysis?
+  profile       StudentProfile  @relation(fields: [userId], references: [userId])
+  analysis      ResumeAnalysis?
 }
 
 model ResumeAnalysis {
-  id          String   @id @default(cuid())
-  resumeId    String   @unique
-  atsScore    Int
-  roles       Json
-  gaps        Json
-  summary     String
-  promptVersion  String   @default("v1")
-  createdAt   DateTime @default(now())
-
-  resume      Resume   @relation(fields: [resumeId], references: [id])
+  id            String   @id @default(cuid())
+  resumeId      String   @unique
+  atsScore      Int
+  roles         Json
+  gaps          Json
+  summary       String
+  createdAt     DateTime @default(now())
+  promptVersion String   @default("v1")
+  resume        Resume   @relation(fields: [resumeId], references: [id])
 }

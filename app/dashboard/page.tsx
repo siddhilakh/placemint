@@ -56,8 +56,20 @@ export default async function DashboardPage() {
   }
 
   const analysis = latestResume.analysis
-  const roles = analysis.roles as any[]
-  const gaps = analysis.gaps as any[]
+  type Role = {
+  title: string
+  match: number
+  reasoning: string
+}
+
+type Gap = {
+  section: string
+  issue: string
+  fix: string
+}
+
+const roles = analysis.roles as Role[]
+const gaps = analysis.gaps as Gap[]
 
   return (
     <main className="min-h-screen py-20 px-6 relative overflow-hidden bg-[#050505]">
@@ -88,7 +100,7 @@ export default async function DashboardPage() {
     Resume Analysis Complete
   </div>
 
-  <h1 className="text-5xl md:text-6xl font-bold text-white mb-6">
+  <h1 className="text-4xl md:text-6xl font-bold text-white mb-6">
     Your Resume
     <span className="bg-gradient-to-r from-[#42E8D8] via-[#1FD5D5] to-[#13B9E8] bg-clip-text text-transparent">
       {" "}Analysis
@@ -126,7 +138,7 @@ export default async function DashboardPage() {
 </h2>
 
         <div className="flex flex-col gap-5 mb-14">
-          {roles.map((role: any) => (
+          {roles.map((role: Role) => (
             <RoleCard
               key={role.title}
               title={role.title}

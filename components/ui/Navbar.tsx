@@ -15,7 +15,7 @@ export default function Navbar() {
   borderColor: "rgba(255,255,255,0.08)",
 }}
     >
-      <div className="max-w-7xl mx-auto px-6 h-18 flex items-center justify-between">
+      <div className="max-w-7xl mx-auto px-4 md:px-6 h-16 md:h-18 flex items-center justify-between">
         
         {/* Logo */}
         <Link href="/" className="flex items-center gap-3">
@@ -27,7 +27,7 @@ export default function Navbar() {
             className="w-10 h-10 object-contain"
           />
 
-          <span className="text-2xl font-bold tracking-tight">
+          <span className="text-xl md:text-2xl font-bold tracking-tight">
             <span className="text-white">Place</span>
             <span className="bg-gradient-to-r from-[#42E8D8] via-[#1FD5D5] to-[#13B9E8] bg-clip-text text-transparent">
               Mint
@@ -53,28 +53,28 @@ export default function Navbar() {
         </div>
 
         {/* Right Side */}
-        <div className="flex items-center gap-5">
+        <div className="flex items-center gap-2 md:gap-5">
           {isSignedIn ? (
             <>
               <Link
-                href="/dashboard"
-                className="text-[#8f9399] hover:text-white transition-all duration-300"
-              >
-                Dashboard
-              </Link>
+  href="/dashboard"
+  className="hidden md:block text-[#8f9399] hover:text-white transition-all duration-300"
+>
+  Dashboard
+</Link>
 
               <Link
-                href="/keywords"
-                className="text-[#8f9399] hover:text-white transition-all duration-300"
-              >
-                JD Match
-              </Link>
+  href="/keywords"
+  className="hidden md:block text-[#8f9399] hover:text-white transition-all duration-300"
+>
+  JD Match
+</Link>
 
               <Link
-                href="/upload"
-                className="
-                  px-6
-                  py-3
+  href="/upload"
+  className="
+    px-3 md:px-6
+    py-2 md:py-3
                   rounded-xl
                   font-medium
                   text-black
@@ -88,7 +88,13 @@ export default function Navbar() {
                   boxShadow: "0 0 20px rgba(66,232,216,0.25)",
                 }}
               >
-                New Analysis
+                <span className="hidden md:inline">
+  New Analysis
+</span>
+
+<span className="md:hidden">
+  +
+</span>
               </Link>
 
               <UserButton />
@@ -96,17 +102,18 @@ export default function Navbar() {
           ) : (
             <>
               <Link
-                href="/sign-in"
-                className="text-[#8f9399] hover:text-white transition-all duration-300"
-              >
-                Sign In
-              </Link>
+  href="/sign-in"
+  className="hidden sm:block text-[#8f9399] hover:text-white transition-all duration-300"
+>
+  Sign In
+</Link>
 
               <Link
                 href="/sign-up"
                 className="
-                  px-6
-                  py-3
+                  px-3 sm:px-6
+py-2 sm:py-3
+text-sm sm:text-base
                   rounded-xl
                   font-medium
                   text-black

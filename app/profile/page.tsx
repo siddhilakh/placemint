@@ -1,7 +1,6 @@
 "use client"
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import { StudentProfile } from "@/types"
 
 export default function ProfilePage() {
   const [name, setName]                       = useState<string>("")
