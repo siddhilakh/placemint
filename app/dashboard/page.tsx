@@ -54,6 +54,29 @@ export default async function DashboardPage() {
       </main>
     )
   }
+  const allResumes = await prisma.resume.findMany({
+  where: {
+    userId,
+    analysis: {
+      isNot: null,
+    },
+  },
+  include: {
+    analysis: true,
+  },
+  orderBy: {
+    createdAt: "asc",
+  },
+})
+
+const totalAnalyses = allResumes.length
+
+const firstScore =
+  allResumes[0]?.analysis?.atsScore ?? latestResume.analysis.atsScore
+
+const latestScore = latestResume.analysis.atsScore
+
+const improvement = latestScore - firstScore
 
   const analysis = latestResume.analysis
   type Role = {
@@ -72,7 +95,7 @@ const roles = analysis.roles as Role[]
 const gaps = analysis.gaps as Gap[]
 
   return (
-    <main className="min-h-screen py-20 px-6 relative overflow-hidden bg-[#050505]">
+    <main className="min-h-screen pt-8 pb-20 px-6 relative overflow-hidden bg-[#050505]">
       {/* Background Glow */}
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(66,232,216,0.12),transparent_55%)] pointer-events-none" />
 
@@ -80,7 +103,7 @@ const gaps = analysis.gaps as Gap[]
 
       {/* Content */}
       <div className="relative z-10 max-w-5xl mx-auto">
-        <div className="mb-14">
+        <div className="mb-8">
   <div
     className="
       inline-flex
@@ -94,18 +117,21 @@ const gaps = analysis.gaps as Gap[]
       text-[#42E8D8]
       text-sm
       font-medium
-      mb-6
+      mb-4
     "
   >
-    Resume Analysis Complete
+    Resume Progress
   </div>
 
-  <h1 className="text-4xl md:text-6xl font-bold text-white mb-6">
-    Your Resume
-    <span className="bg-gradient-to-r from-[#42E8D8] via-[#1FD5D5] to-[#13B9E8] bg-clip-text text-transparent">
-      {" "}Analysis
-    </span>
-  </h1>
+  <h1 className="text-3xl md:text-5xl font-bold text-white mb-4">
+    <p className="text-[#8f9399] text-lg mb-4">
+  Track how your ATS score, role matches, and resume quality evolve over time.
+</p>
+  Latest {" "}
+  <span className="bg-gradient-to-r from-[#42E8D8] via-[#1FD5D5] to-[#13B9E8] bg-clip-text text-transparent">
+    Resume Snapshot
+  </span>
+</h1>
 
   <div
     className="
@@ -114,18 +140,89 @@ const gaps = analysis.gaps as Gap[]
       border-white/10
       bg-white/[0.03]
       backdrop-blur-xl
-      p-6
+      p-4 md:p-5
       shadow-[0_0_30px_rgba(66,232,216,0.08)]
     "
   >
-    <p className="text-[#b0b4ba] text-lg leading-relaxed">
+    <p className="text-[#b0b4ba] text-base md:text-lg leading-relaxed">
       {analysis.summary}
     </p>
   </div>
 </div>
+<div
+  className="
+    mb-14
+    rounded-3xl
+    border
+    border-white/10
+    bg-white/[0.03]
+    backdrop-blur-xl
+    p-5 md:p-6
+    shadow-[0_0_30px_rgba(66,232,216,0.08)]
+  "
+>
+  <div className="grid grid-cols-1 md:grid-cols-4 gap-6 items-center">
+
+    <div>
+      <p className="text-[#8f9399] text-sm mb-2">
+        Total Analyses
+      </p>
+
+      <p className="text-3xl font-bold text-white">
+        {totalAnalyses}
+      </p>
+    </div>
+
+    <div>
+      <p className="text-[#8f9399] text-sm mb-2">
+        Latest ATS
+      </p>
+
+      <p className="text-3xl font-bold text-[#42E8D8]">
+        {latestScore}
+      </p>
+    </div>
+
+    <div>
+      <p className="text-[#8f9399] text-sm mb-2">
+        Improvement
+      </p>
+
+      <p
+        className={`text-3xl font-bold ${
+          improvement >= 0
+            ? "text-[#42E8D8]"
+            : "text-red-400"
+        }`}
+      >
+        {improvement >= 0 ? "+" : ""}
+        {improvement}
+      </p>
+    </div>
+
+    <div className="md:text-right">
+      <a
+        href="/history"
+        className="
+          inline-flex
+          items-center
+          gap-2
+          text-[#42E8D8]
+          font-medium
+          hover:text-white
+          transition-all
+          duration-300
+        "
+      >
+        View History →
+      </a>
+    </div>
+
+  </div>
+</div>
 
         {/* ATS */}
-        <div className="mb-14">
+        <div className="mb-10">
           <AtsScoreCard score={analysis.atsScore} />
         </div>
 
