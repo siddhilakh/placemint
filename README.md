@@ -2,7 +2,7 @@
 
 AI-powered placement companion for Indian engineering students.
 
-[Live Demo](your-vercel-url-here) · [GitHub](https://github.com/siddhilakh) · [LinkedIn](https://linkedin.com/in/siddhi-lakhotia-2b6138336)
+[Live Demo](https://placemint-amber.vercel.app/) · [GitHub](https://github.com/siddhilakh) · [LinkedIn](https://linkedin.com/in/siddhi-lakhotia-2b6138336)
 
 ---
 
