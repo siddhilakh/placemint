@@ -16,7 +16,7 @@ PlaceMint is different. Upload your resume, tell us your branch, CGPA, and colle
 - **Role suggestions** matched to your realistic eligibility, not generic recommendations
 - A **gap report** that tells you exactly what's wrong and how to fix it — section by section
 - A **JD Match tool** — paste any job description and instantly see which keywords your resume is missing
-- **Resume history** — every analysis is saved so you can track your ATS score improvement over time, compare with your previous upload, and see specific improvement points between versions
+- **Resume history** — every analysis is stored automatically, allowing you to track ATS score growth, review past resume evaluations, and measure your progress over time.
 
 ---
 
@@ -30,7 +30,7 @@ PlaceMint is different. Upload your resume, tell us your branch, CGPA, and colle
 | ORM | Prisma 5 |
 | Auth | Clerk v7 |
 | File storage | Uploadthing |
-| PDF parsing | pdf-parse |
+| PDF parsing | unpdf |
 | AI analysis | Gemini 2.5 Flash |
 | Deployment | Vercel |
 
@@ -47,7 +47,7 @@ PlaceMint is different. Upload your resume, tell us your branch, CGPA, and colle
 | `/upload` | Resume upload with PDF validation and AI analysis trigger |
 | `/dashboard` | Latest analysis — ATS score, role suggestions, gap report |
 | `/keywords` | JD Match — paste a job description, get keyword gap analysis |
-| `/history` | Resume version history — ATS score timeline, improvement comparison, per-analysis snapshots |
+| `/history` | Track resume progress over time with ATS score comparisons, improvement metrics, and access to past analysis reports |
 
 ---
 
@@ -86,7 +86,7 @@ Uploadthing stores file → returns CDN URL
 
 ↓
 
-POST /api/resume — pdf-parse extracts text → saved to DB
+POST /api/resume — unpdf extracts text → saved to DB
 
 ↓
 
@@ -130,7 +130,7 @@ This turns PlaceMint from a one-time tool into a placement preparation tracker.
 
 ## Known Limitations
 
-- **Scanned/image-based PDFs** — pdf-parse extracts the text layer only. PDFs created by scanning physical documents have no text layer. Planned fix: integrate Google Cloud Vision OCR for production.
+- **Scanned/image-based PDFs** — unpdf extracts the text layer only. PDFs created by scanning physical documents have no text layer. Planned fix: integrate Google Cloud Vision OCR for production.
 - **Gemini free tier** — 30 requests per day per API key. Sufficient for personal use and testing; production at scale would require a paid tier or request queuing.
 - **Prompt consistency** — LLMs occasionally return slightly different JSON structures despite explicit instructions. Current handling: strip markdown, parse, catch errors. Future improvement: JSON schema validation before saving.
 
@@ -151,10 +151,6 @@ This turns PlaceMint from a one-time tool into a placement preparation tracker.
 **Foreign key constraint on resume upload** — Resume.userId is a foreign key to StudentProfile.userId, not User.id directly. Upload failed if the student skipped the profile form. Fixed by adding a profile existence check in POST /api/resume that returns a clear 400 error before attempting the insert.
 
 **CGPA floating point precision** — Postgres Float type stored 8 as 7.9 due to IEEE 754 representation. Migrated cgpa column from Float to Decimal type — exact decimal storage with no precision loss.
-
-**Gemini model deprecation** — gemini-1.5-flash returned 404. Updated to gemini-2.5-flash which is the current stable model.
-
-**Free tier quota during development** — Hit the 30 RPD limit repeatedly during testing. Solution: create a new API key under a fresh Google Cloud project — each project gets its own independent quota.
 
 ---
 
